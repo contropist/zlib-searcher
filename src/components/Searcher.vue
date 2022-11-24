@@ -40,7 +40,7 @@ export default {
   },
   methods: {
     handleSearch: function () {
-      this.$http.get("http://127.0.0.1:7070/search?limit=100&query=" + this.constructQuery()).then((response) => {
+      this.$http.get("search?limit=100&query=" + this.constructQuery()).then((response) => {
         this.data = response.data.books;
       }).catch(() => { });
     },
@@ -89,7 +89,7 @@ export default {
           title: 'zlib_id',
           key: 'zlib_id',
           dataKey: 'zlib_id',
-          width: 90,
+          width: 120,
         },
         {
           title: '书名',
@@ -113,7 +113,7 @@ export default {
           title: '扩展名',
           key: 'extension',
           dataKey: 'extension',
-          width: 80,
+          width: 100,
           align: 'center',
         },
         {
@@ -126,21 +126,21 @@ export default {
           title: '语言',
           key: 'language',
           dataKey: 'language',
-          width: 100,
+          width: 120,
           align: 'center',
         },
         {
           title: '年份',
           key: 'year',
           dataKey: 'year',
-          width: 80,
+          width: 100,
           align: 'center',
         },
         {
           title: '页数',
           key: 'pages',
           dataKey: 'pages',
-          width: 90,
+          width: 100,
           align: 'center',
         },
         {
@@ -153,7 +153,7 @@ export default {
           title: 'IPFS CID',
           key: 'ipfs_cid',
           dataKey: 'ipfs_cid',
-          width: 500,
+          width: 480,
           fixed: TableV2FixedDir.RIGHT,
         },
       ],
