@@ -40,7 +40,7 @@ export default {
   },
   methods: {
     handleSearch: function () {
-      this.$http.get("http://127.0.0.1:7070/search?limit=100&query=" + this.constructQuery()).then((response) => {
+      this.$http.get("search?limit=100&query=" + this.constructQuery()).then((response) => {
         this.data = response.data.books;
       }).catch(() => { });
     },
