@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { TableV2FixedDir, TableV2SortOrder } from 'element-plus'
+import { TableV2FixedDir } from 'element-plus'
 
 export default {
   title: 'zlib-searcher',
@@ -51,13 +51,19 @@ export default {
 
       var query = '';
       if (this.title) {
-        query = query + 'title:"' + this.title + '"';
+        this.title.split(' ').forEach(t => {
+          query = query + 'title:"' + this.title + '"';
+        });
       }
       if (this.author) {
-        query = query + 'author:"' + this.author + '"';
+        this.author.split(' ').forEach(t => {
+          query = query + 'author:"' + this.author + '"';
+        });
       }
       if (this.publisher) {
-        query = query + 'publisher:"' + this.publisher + '"';
+        this.publisher.split(' ').forEach(t => {
+          query = query + 'publisher:"' + this.publisher + '"';
+        });
       }
       if (this.extension) {
         query = query + 'extension:"' + this.extension + '"';
@@ -69,7 +75,6 @@ export default {
       if (this.isbn) {
         query = query + 'isbn:"' + this.isbn + '"';
       }
-
 
       console.log(query);
       return query;
@@ -86,10 +91,10 @@ export default {
       isbn: '',
       columns: [
         {
-          title: 'zlib_id',
-          key: 'zlib_id',
-          dataKey: 'zlib_id',
-          width: 120,
+          title: 'zlib|libgen id',
+          key: 'id',
+          dataKey: 'id',
+          width: 140,
         },
         {
           title: '书名',
