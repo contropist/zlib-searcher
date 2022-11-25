@@ -20,7 +20,6 @@
       <el-auto-resizer>
         <template #default="{ height, width }">
           <el-table-v2 :columns="columns" :data="data"
-          :estimated-row-height="50"
           :cache="10"
           :width="width" :height="height"
           >
