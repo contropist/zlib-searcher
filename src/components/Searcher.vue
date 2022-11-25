@@ -21,6 +21,7 @@
         <template #default="{ height, width }">
           <el-table-v2 :columns="columns" :data="data"
           :cache="10"
+          fixed
           :width="width" :height="height"
           >
           </el-table-v2>
@@ -30,8 +31,8 @@
   </div>
 </template>
 
-<script>
-import { TableV2FixedDir } from 'element-plus'
+<script lang="jsx">
+import { TableV2FixedDir, ElButton } from 'element-plus'
 
 export default {
   title: 'zlib-searcher',
@@ -157,13 +158,15 @@ export default {
           title: 'ISBN',
           key: 'isbn',
           dataKey: 'isbn',
-          width: 200,
+          width: 400,
         },
         {
           title: 'IPFS CID',
           key: 'ipfs_cid',
           dataKey: 'ipfs_cid',
-          width: 480,
+          width: 560,
+          minWidth: 480,
+          maxWidth: 1000,
           fixed: TableV2FixedDir.RIGHT,
         },
       ],
