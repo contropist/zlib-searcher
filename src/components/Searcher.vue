@@ -34,6 +34,14 @@
 <script lang="jsx">
 import { TableV2FixedDir, ElButton } from 'element-plus'
 
+function ipfs_cid_should_fix() {
+  if (document.documentElement.clientWidth<1000) {
+    return false;
+  } else {
+    return TableV2FixedDir.RIGHT;
+  }
+}
+
 export default {
   title: 'zlib-searcher',
   setup() {
@@ -167,7 +175,7 @@ export default {
           width: 560,
           minWidth: 480,
           maxWidth: 1000,
-          fixed: TableV2FixedDir.RIGHT,
+          fixed: ipfs_cid_should_fix(),
         },
       ],
       data: []
