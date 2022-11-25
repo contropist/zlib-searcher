@@ -40,7 +40,7 @@ export default {
   },
   methods: {
     handleSearch: function () {
-      this.$http.get("search?limit=100&query=" + this.constructQuery()).then((response) => {
+      this.$http.get("http://127.0.0.1:7070/search?limit=100&query=" + this.constructQuery()).then((response) => {
         this.data = response.data.books;
       }).catch(() => { });
     },
@@ -51,18 +51,24 @@ export default {
 
       var query = '';
       if (this.title) {
-        this.title.split(' ').forEach(t => {
-          query = query + 'title:"' + this.title + '"';
+        this.title.split(' ').forEach((e) => {
+          if (e) {
+            query = query + 'title:"' + e + '"';
+          }
         });
       }
       if (this.author) {
-        this.author.split(' ').forEach(t => {
-          query = query + 'author:"' + this.author + '"';
+        this.author.split(' ').forEach((e) => {
+          if (e) {
+            query = query + 'author:"' + e + '"';
+          }
         });
       }
       if (this.publisher) {
-        this.publisher.split(' ').forEach(t => {
-          query = query + 'publisher:"' + this.publisher + '"';
+        this.publisher.split(' ').forEach((e) => {
+          if (e) {
+            query = query + 'publisher:"' + e + '"';
+          }
         });
       }
       if (this.extension) {
