@@ -1,9 +1,12 @@
-use cang_jie::{CangJieTokenizer, TokenizerOption, CANG_JIE};
-use jieba_rs::Jieba;
+use std::path::Path;
+
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DefaultOnError, DefaultOnNull};
-use std::sync::Arc;
-use tantivy::{collector::TopDocs, query::QueryParser, schema::*, store::Compressor, Index};
+use tantivy::{schema::*, store::Compressor, Index, TantivyError};
+use tantivy_meta_tokenizer::{get_tokenizer, META_TOKENIZER};
+
+pub mod index;
+pub mod search;
 
 #[serde_as]
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -87,26 +90,9 @@ pub struct Searcher {
 }
 
 impl Searcher {
-    pub fn new(index_dir: &str) -> Self {
-        let mut index = Index::open_in_dir(index_dir).unwrap();
-        #[cfg(feature = "best-size")]
-        {
-            index.settings_mut().docstore_compression = Compressor::Brotli; // size: 2.1G, size is best
-        }
-        #[cfg(feature = "best-speed")]
-        {
-            index.settings_mut().docstore_compression = Compressor::Lz4; // size: 3.1G, speed is best
-        }
-
-        let tokenizer = CangJieTokenizer {
-            worker: Arc::new(Jieba::new()),
-            option: TokenizerOption::Unicode,
-        };
-        index.tokenizers().register(CANG_JIE, tokenizer);
-        _ = index.set_default_multithread_executor();
-
+    pub fn new(index_dir: impl AsRef<Path>) -> Self {
         let text_indexing = TextFieldIndexing::default()
-            .set_tokenizer(CANG_JIE)
+            .set_tokenizer(META_TOKENIZER)
             .set_index_option(IndexRecordOption::WithFreqsAndPositions);
         let text_options = TextOptions::default()
             .set_indexing_options(text_indexing)
@@ -116,7 +102,7 @@ impl Searcher {
         let id = schema_builder.add_u64_field("id", INDEXED | STORED);
         let title = schema_builder.add_text_field("title", text_options.clone());
         let author = schema_builder.add_text_field("author", text_options.clone());
-        let publisher = schema_builder.add_text_field("publisher", text_options.clone());
+        let publisher = schema_builder.add_text_field("publisher", text_options);
         let extension = schema_builder.add_text_field("extension", STRING | STORED);
         let filesize = schema_builder.add_u64_field("filesize", STORED);
         let language = schema_builder.add_text_field("language", TEXT | STORED);
@@ -125,6 +111,28 @@ impl Searcher {
         let isbn = schema_builder.add_text_field("isbn", TEXT | STORED);
         let ipfs_cid = schema_builder.add_text_field("ipfs_cid", STORED);
         let schema = schema_builder.build();
+
+        // open or create index
+        let index_dir = index_dir.as_ref();
+        let mut index = Index::open_in_dir(index_dir).unwrap_or_else(|err| {
+            if let TantivyError::OpenDirectoryError(_) | TantivyError::OpenReadError(_) = err {
+                std::fs::create_dir_all(index_dir).expect("create index directory");
+                Index::create_in_dir(index_dir, schema.clone()).unwrap()
+            } else {
+                panic!("Error opening index: {err:?}")
+            }
+        });
+        #[cfg(feature = "best-size")]
+        {
+            index.settings_mut().docstore_compression = Compressor::Brotli; // size: 2.1G, size is best
+        }
+        #[cfg(feature = "best-speed")]
+        {
+            index.settings_mut().docstore_compression = Compressor::Lz4; // size: 3.1G, speed is best
+        }
+
+        index.tokenizers().register(META_TOKENIZER, get_tokenizer());
+        _ = index.set_default_multithread_executor();
 
         Self {
             index,
@@ -141,35 +149,5 @@ impl Searcher {
             isbn,
             ipfs_cid,
         }
-    }
-
-    pub fn search(&self, query: &str, limit: usize) -> Vec<Book> {
-        let reader = self.index.reader().unwrap();
-        let searcher = reader.searcher();
-
-        let mut query_parser = QueryParser::for_index(
-            &self.index,
-            vec![
-                self.title.clone(),
-                self.author.clone(),
-                self.publisher.clone(),
-                self.isbn.clone(),
-            ],
-        );
-        query_parser.set_conjunction_by_default();
-        let query = query_parser.parse_query(query).unwrap();
-
-        let top_docs = searcher
-            .search(&query, &TopDocs::with_limit(limit))
-            .unwrap();
-
-        top_docs
-            .iter()
-            .map(|d| {
-                let doc = searcher.doc(d.1).unwrap();
-                let item: Book = (&self.schema, doc).into();
-                item
-            })
-            .collect()
     }
 }
