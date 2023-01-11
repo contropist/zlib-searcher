@@ -1,0 +1,28 @@
+{
+  "en": {
+    "translation": {
+      "settings": {
+        "title": "Settings",
+        "index_dir": "Index directory",
+        "index_dir_help": "The directory where the index is stored.",
+        "index_dir_required": "The index directory is required",
+        "index_dir_browse": "Browse",
+        "cancel": "Cancel",
+        "save": "Save"
+      }
+    }
+  },
+  "zh-CN": {
+    "translation": {
+      "settings": {
+        "title": "设置",
+        "index_dir": "索引目录",
+        "index_dir_help": "存储索引的目录。",
+        "index_dir_required": "索引目录不能为空",
+        "index_dir_browse": "浏览",
+        "cancel": "取消",
+        "save": "保存"
+      }
+    }
+  }
+}
